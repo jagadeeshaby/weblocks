@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- <script src="https://unpkg.com/amazon-connect-streams@2.5.0/release/connect-streams.js"></script> -->
+
+    <script src="./static/streams.js"></script>
+
+    <style>
+        iframe{
+            border: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Welcome to my Cutsom CCP App</h1>
+
+    <div id="container-div" style="width: 100%; height:150px; display: none;"></div>
+
+
+    <h2 id="agent-status">Agent status - Loading....</h2>
+
+    <button>Call me</button>
+
+
+   
+    <script type="text/javascript">
+
+
+        function init() {
+            connect.core.initCCP(document.getElementById("container-div"), {
+                loginPopup: true,
+                // ccpUrl: "https://localhost:3000/connect-gamma/ccp-v2",
+                ccpUrl: "https://jagadeey-integ.my.dev.us-west-2.nonprod.connect.aws.a2z.com/ccp-v2",
+                storageAccess: {
+                    canRequest: true,
+                    mode: "custom",
+                    custom: {
+                        title: "Jag Notice",
+                        description: "Jag As per your browser policy, this website now explicitly requires permission to access cookies. Request access by clicking the below ‘Grant Access’ button and ‘Allow’ your browser permissions. This will only allow access to your login cookies. Read more",
+                        buttonText: "Jag Grant Access",
+                        pageStyle: ``
+                    }
+                },
+                loginPopupAutoClose: true,   // optional, defaults to `false`
+                loginPopup: true,
+                loginUrl: "https://jagadeey-integ.my.dev.us-west-2.nonprod.connect.aws.a2z.com",
+                softphone: {
+                    allowFramedSoftphone: true,
+                    disableRingtone: false,
+                },
+                // ccpAckTimeout: 1000, //optional, defaults to 3000 (ms)
+                // ccpSynTimeout: 10000000, //optional, defaults to 1000 (ms)
+                ccpLoadTimeout: 4000 //optional, defaults to 5000 (ms)
+            });
+
+            connect.storageAccess.onRequest({
+                onInit: () => {
+                    console.log("111111111", "init");
+                    // document.getElementById("container-div").style.display = "block";
+                },
+
+                onGrant: () => {
+                    console.log("22222222", "granted");
+                    // document.getElementById("container-div").style.display = "none";
+
+                },
+
+                onDeny: () => {
+                    console.log("3333333", "onDenied");
+                    // document.getElementById("container-div").style.display = "block";
+
+                }
+            });
+
+        
+            // setInterval(() => location.reload(), 2000);
+
+            connect.agent((agent) => {
+
+                document.getElementById("agent-status").innerText = agent.getStatus().name;
+
+                agent.onRefresh((...arguments) => console.log("Agent onRefresh", agent.getStatus(), arguments));
+                agent.onAfterCallWork((...arguments) => console.log("Agent onAfterCallWork", agent.getStatus(), arguments));
+                agent.onEnqueuedNextState((...arguments) => console.log("Agent onEnqueuedNextState", agent.getStatus(), arguments));
+                agent.onError((...arguments) => console.log("Agent onError", agent.getStatus(), arguments));
+                agent.onLocalMediaStreamCreated((...arguments) => console.log("Agent onLocalMediaStreamCreated", agent.getStatus(), arguments));
+                agent.onNotRoutable((...arguments) => console.log("Agent onNotRoutable", agent.getStatus(), arguments));
+                agent.onOffline((...arguments) => console.log("Agent onOffline", agent.getStatus(), arguments));
+                agent.onRoutable((...arguments) => console.log("Agent onRoutable", agent.getStatus(), arguments));
+                agent.onSoftphoneError((...arguments) => console.log("Agent onSoftphoneError", agent.getStatus(), arguments));
+                agent.onWebSocketConnectionGained((...arguments) => console.log("Agent onWebSocketConnectionGained", agent.getStatus(), arguments));
+                agent.onStateChange((...arguments) => console.log("Agent onStateChange", agent.getStatus(), arguments));
+                agent.onWebSocketConnectionLost((...arguments) => console.log("Agent onWebSocketConnectionLost", agent.getStatus(), arguments));
+                agent.onRingerDeviceChanged((...arguments) => console.log("Agent onRingerDeviceChanged", agent.getStatus(), arguments));
+            });
+
+            connect.contact(contact => {
+                console.log(contact);
+                contact.onRefresh((...arguments) => {
+                    console.log("Contact onRefresh", contact.getAgentConnection().getStatus().type, contact.getInitialConnection().getStatus().type, arguments)
+                });
+                contact.onACW((...arguments) => console.log("Contact ACW", arguments));
+                contact.onConnecting((...arguments) => console.log("Contact onConnecting", arguments));
+                contact.onAccepted((...arguments) => console.log("Contact onAccepted", arguments));
+                contact.onConnected((...arguments) => console.log("Contact onConnected", arguments));
+                contact.onDestroy((...arguments) => console.log("Contact onDestroy", arguments));
+                contact.onEnded((...arguments) => console.log("Contact onEnded", arguments));
+                contact.onError((...arguments) => console.log("Contact onError", arguments));
+                contact.onIncoming((...arguments) => console.log("Contact onIncoming", arguments));
+                contact.onMissed((...arguments) => console.log("Contact onMissed", arguments))
+                contact.onPending((...arguments) => console.log("Contact onPending", arguments));
+            });
+
+            connect.core.getEventBus().subscribe(connect.EventType.ACK_TIMEOUT, function () {
+                console.log("ACK_TIMEOUTACK_TIMEOUTACK_TIMEOUTACK_TIMEOUTACK_TIMEOUTACK_TIMEOUT");
+            });
+
+            connect.core.getEventBus().subscribe(connect.EventType.IFRAME_RETRIES_EXHAUSTED, function () {
+                console.log("IFRAME_RETRIES_EXHAUSTEDIFRAME_RETRIES_EXHAUSTEDIFRAME_RETRIES_EXHAUSTEDIFRAME_RETRIES_EXHAUSTEDIFRAME_RETRIES_EXHAUSTED");
+            });
+
+            connect.core.onAuthFail(() => {
+                console.log("onAuthFailonAuthFailonAuthFailonAuthFailonAuthFailonAuthFailonAuthFail")
+            });
+
+            connect.core.onAuthorizeSuccess(() => {
+                console.log("onAuthorizeSuccessonAuthorizeSuccessonAuthorizeSuccessonAuthorizeSuccessonAuthorizeSuccess")
+            });
+        }
+        init();
+    </script>
+</body>
+
+</html>

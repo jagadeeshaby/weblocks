@@ -1,0 +1,64 @@
+<html>
+
+<head>
+
+    <style>
+
+    #invoke{
+        margin-bottom: 20px;
+    }
+
+    #result{
+        border: 1px solid;
+        padding: 20px;
+        white-space:pre;
+        color: #000;
+    }
+
+
+    #timer{
+        /* font-size: 20px; */
+        color: green;
+    }
+
+
+    </style>
+</head>
+
+    <body>
+        <h1>Welcome - Testing Web locks</h1>
+
+        <button id="invoke">InvokeAPI</button>
+
+        <div id="result" style="display: none;">Loading...</div>
+        
+
+        <h1 id="timer"></h1>
+
+
+    </body>
+
+    <script type="module"  src="./static/app.js"></script>
+
+    <script>
+
+
+    var sse = new EventSource("/events");
+    var timer = document.getElementById("timer");
+        sse.addEventListener("ContactConnected", (e,...rest) => {
+            console.log(e, rest);
+            timer.innerText = `Connected: ${new Date(parseInt(e.lastEventId))}`
+        });
+
+        sse.addEventListener("ContactIncoming", (e,...rest) => {
+            console.log(e, rest);
+            timer.innerText = `Incoming: ${new Date(parseInt(e.lastEventId))}`
+        });
+
+        sse.addEventListener("ContactEnded", (e,...rest) => {
+            console.log(e, rest);
+            timer.innerText = `Ended - ${new Date(parseInt(e.lastEventId))}`
+        });
+    </script>
+
+</html>
